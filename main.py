@@ -9,6 +9,8 @@ from functools import wraps
 import json
 import os
 
+app = Flask(__name__)
+
 
 from auth.register import register_user
 from auth import login
@@ -34,7 +36,8 @@ from routes.quiz import get_one_quiz_with_id
 from routes.quiz import delete_one_quiz_with_id
 from routes.quiz import get_all_shared_quizzes
 
-app = Flask(__name__)
+
+
 
 #QuizifyHub-api
 
