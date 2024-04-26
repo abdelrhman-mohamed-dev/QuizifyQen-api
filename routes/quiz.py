@@ -2,6 +2,7 @@ import json
 from flask import request, jsonify
 
 from models.quiz import Quiz
+from models.user import User
 from db_config import db
 
 
@@ -104,6 +105,7 @@ def create_quiz(current_user):
     # Create a new Quiz object
     quiz = Quiz(
         content=content,
+        quiz_name=pdf_file.filename,
         pdf_file=pdf_file.filename,
         questions_number=questions_number,
         questions_type=questions_type,
@@ -126,12 +128,16 @@ def share_quiz(current_user,quiz_id):
     if quiz.user_id != current_user.public_id:
         return jsonify({"message": "You are not authorized to share this quiz"})
     if quiz.shared:
-        return jsonify({"message": "Quiz already shared"})
-    quiz.shared = True
-    db.session.commit()
-    db.session.close()
+        quiz.shared = False
+        db.session.commit()
+        db.session.close()
+        return jsonify({"message": "Quiz unshared successfully"})
+    else:
+        quiz.shared = True
+        db.session.commit()
+        db.session.close()
+        return jsonify({"message": "Quiz shared successfully"})
     
-    return jsonify({"message": "Quiz shared successfully"})
 
 def get_all_quizzes_of_user(current_user):
     quizs = Quiz.query.filter_by(user_id=current_user.public_id).all()
@@ -139,14 +145,16 @@ def get_all_quizzes_of_user(current_user):
     quiz_data = []
     for quiz in quizs:
         content = json.loads(quiz.content)
+        user_name = User.query.filter_by(public_id=quiz.user_id).first().username
         quiz = {
             "id": quiz.id,
-            "content": content,
+            "quiz_name":quiz.quiz_name,  
             "pdf_file": quiz.pdf_file,
             "questions_number": quiz.questions_number,
             "questions_type": quiz.questions_type,
             "shared": quiz.shared,
-            "user_id": quiz.user_id
+            "user_id": quiz.user_id,
+            "user_name": user_name
         }
         quiz_data.append(quiz)
 
@@ -164,6 +172,7 @@ def get_one_quiz_with_id(current_user,quiz_id):
         "pdf_file": quiz.pdf_file,
         "questions_number": quiz.questions_number,
         "questions_type": quiz.questions_type,
+        "quiz_name": quiz.quiz_name,
         "shared": quiz.shared
     }
     return jsonify({"data": quiz})
@@ -191,6 +200,7 @@ def get_all_shared_quizzes(current_user):
             "questions_number": quiz.questions_number,
             "questions_type": quiz.questions_type,
             "shared": quiz.shared,
+            "quiz_name": quiz.quiz_name,
             "user_id": quiz.user_id
         }
         quizzes_data.append(quiz)

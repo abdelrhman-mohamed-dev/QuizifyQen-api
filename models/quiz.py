@@ -2,6 +2,7 @@ from db_config import db
 
 class Quiz(db.Model):
     id = db.Column(db.Integer, primary_key=True)
+    quiz_name = db.Column(db.String(), unique=False, nullable=True)
     content = db.Column(db.String(), unique=False, nullable=True)
     pdf_file = db.Column(db.String(), unique=False, nullable=False)
     questions_number = db.Column(db.Integer, nullable=False)
