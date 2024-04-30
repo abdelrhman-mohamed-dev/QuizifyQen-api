@@ -192,16 +192,18 @@ def get_all_shared_quizzes(current_user):
     quizzes = Quiz.query.filter_by(shared=True).all()
     quizzes_data = []
     for quiz in quizzes:
+        user = User.query.filter_by(public_id=quiz.user_id).first()
         content = json.loads(quiz.content)
         quiz = {
             "id": quiz.id,
-            "content": content,
+            # "content": content,
             "pdf_file": quiz.pdf_file,
             "questions_number": quiz.questions_number,
             "questions_type": quiz.questions_type,
             "shared": quiz.shared,
             "quiz_name": quiz.quiz_name,
-            "user_id": quiz.user_id
+            "user_id": quiz.user_id,
+            "user_name": user.username
         }
         quizzes_data.append(quiz)
     
